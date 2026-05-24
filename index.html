@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homework Helper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f7f5f0;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+ 
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+ 
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border: 1px solid #e4e0d8;
+      border-radius: 12px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+ 
+    .card-wide { max-width: 540px; }
+ 
+    .card-title {
+      font-family: 'Lora', serif;
+      font-size: 26px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+ 
+    .card-sub {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 28px;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+ 
+    .card-note {
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+ 
+    /* ── Fields ── */
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 6px;
+      margin-top: 20px;
+    }
+ 
+    .field-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      background: #fafafa;
+      color: #1a1a1a;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+ 
+    .field-input:focus { border-color: #a0a0a0; background: #fff; }
+ 
+    .field-error {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #c0392b;
+    }
+ 
+    /* ── Buttons ── */
+    .btn-primary {
+      margin-top: 24px;
+      width: 100%;
+      padding: 11px;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+ 
+    .btn-primary:hover { background: #333; }
+    .btn-primary:disabled { background: #ccc; cursor: default; }
+ 
+    /* ── Subject screen ── */
+    .subject-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+ 
+    .subject-btn {
+      padding: 14px 10px;
+      border: 1px solid #e0ddd6;
+      border-radius: 8px;
+      background: #fafaf8;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+ 
+    .subject-btn:hover { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+ 
+    /* ── Topic screen ── */
+    .back-btn {
+      background: none;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: #aaa;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.15s;
+    }
+ 
+    .back-btn:hover { color: #555; }
+ 
+    .topic-section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #bbb;
+      margin-bottom: 10px;
+    }
+ 
+    .topic-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+ 
+    .topic-chip {
+      padding: 7px 13px;
+      border: 1px solid #e0ddd6;
+      border-radius: 20px;
+      background: #fafaf8;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: #444;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+ 
+    .topic-chip:hover { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+ 
+    .topic-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+ 
+    .topic-divider-line { flex: 1; height: 1px; background: #ece9e2; }
+    .topic-divider-text { font-size: 12px; color: #bbb; white-space: nowrap; }
+ 
+    .topic-input-row {
+      display: flex;
+      gap: 8px;
+    }
+ 
+    .topic-free-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      background: #fafafa;
+      color: #1a1a1a;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+ 
+    .topic-free-input:focus { border-color: #a0a0a0; background: #fff; }
+ 
+    .topic-go-btn {
+      padding: 10px 18px;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+ 
+    .topic-go-btn:hover { background: #333; }
+ 
+    /* ── Chat ── */
+    .chat-shell {
+      width: 100%;
+      max-width: 680px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border-left: 1px solid #e4e0d8;
+      border-right: 1px solid #e4e0d8;
+    }
+ 
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid #ece9e2;
+      background: #fff;
+      flex-shrink: 0;
+    }
+ 
+    .chat-header-left { display: flex; flex-direction: column; gap: 2px; }
+ 
+    .chat-header-name {
+      font-family: 'Lora', serif;
+      font-size: 17px;
+      font-weight: 500;
+    }
+ 
+    .chat-header-sub {
+      font-size: 12px;
+      color: #888;
+      font-weight: 300;
+      letter-spacing: 0.03em;
+    }
+ 
+    .header-btns { display: flex; gap: 8px; }
+ 
+    .header-btn {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+ 
+    .header-btn:hover { border-color: #999; color: #333; }
+ 
+    /* ── History banner ── */
+    .history-banner {
+      background: #f4f2ee;
+      border-bottom: 1px solid #ece9e2;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+ 
+    .history-banner-text {
+      font-size: 13px;
+      color: #666;
+      font-weight: 300;
+    }
+ 
+    .history-banner-btns { display: flex; gap: 8px; }
+ 
+    .history-keep-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      background: #fff;
+      color: #444;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+ 
+    .history-keep-btn:hover { border-color: #999; }
+ 
+    .history-clear-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      background: none;
+      color: #aaa;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+ 
+    .history-clear-btn:hover { color: #c0392b; }
+ 
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+ 
+    .msg {
+      display: flex;
+      flex-direction: column;
+      max-width: 88%;
+    }
+ 
+    .msg.user { align-self: flex-end; align-items: flex-end; }
+    .msg.assistant { align-self: flex-start; align-items: flex-start; }
+ 
+    .msg-sender {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 5px;
+    }
+ 
+    .msg-bubble {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 15px;
+      line-height: 1.6;
+      font-weight: 300;
+      white-space: pre-wrap;
+    }
+ 
+    .msg.user .msg-bubble {
+      background: #1a1a1a;
+      color: #fff;
+      border-radius: 10px 10px 2px 10px;
+    }
+ 
+    .msg.assistant .msg-bubble {
+      background: #f4f2ee;
+      color: #1a1a1a;
+      border-radius: 10px 10px 10px 2px;
+    }
+ 
+    .msg-thinking .msg-bubble {
+      background: #f4f2ee;
+      color: #aaa;
+      font-style: italic;
+    }
+ 
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #bbb;
+      text-align: center;
+    }
+ 
+    .empty-icon { font-size: 32px; margin-bottom: 4px; }
+    .empty-title { font-family: 'Lora', serif; font-size: 18px; color: #888; }
+    .empty-sub { font-size: 14px; font-weight: 300; }
+ 
+    /* ── Input ── */
+    .chat-input-area {
+      padding: 16px 24px 20px;
+      border-top: 1px solid #ece9e2;
+      background: #fff;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+ 
+    .chat-textarea {
+      flex: 1;
+      resize: none;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 300;
+      color: #1a1a1a;
+      background: #fafafa;
+      outline: none;
+      line-height: 1.5;
+      max-height: 120px;
+      overflow-y: auto;
+      transition: border-color 0.15s;
+    }
+ 
+    .chat-textarea:focus { border-color: #a0a0a0; background: #fff; }
+ 
+    .send-btn {
+      padding: 10px 18px;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+      height: 42px;
+    }
+ 
+    .send-btn:hover { background: #333; }
+    .send-btn:disabled { background: #ccc; cursor: default; }
+ 
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+ 
+<div class="app" id="app">
+ 
+  <!-- ── API Key setup ── -->
+  <div class="card hidden" id="screen-setup">
+    <div class="card-title">Homework Helper</div>
+    <div class="card-sub">Enter your Anthropic API key to get started. It's saved in your browser only.</div>
+    <div class="card-note">Get a key at platform.anthropic.com → API Keys. It stays on this device and is never sent anywhere except Anthropic.</div>
+    <label class="field-label">API Key</label>
+    <input class="field-input" id="api-key-input" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" />
+    <div class="field-error hidden" id="setup-error"></div>
+    <button class="btn-primary" onclick="handleSetup()">Save & continue</button>
+  </div>
+ 
+  <!-- ── Login ── -->
+  <div class="card hidden" id="screen-login">
+    <div class="card-title">Homework Helper</div>
+    <div class="card-sub">Sign in to get started</div>
+    <label class="field-label">Username</label>
+    <input class="field-input" id="login-username" type="text" placeholder="your name" autocapitalize="none" autocorrect="off" spellcheck="false" />
+    <label class="field-label">Password</label>
+    <input class="field-input" id="login-password" type="password" placeholder="••••••••" />
+    <div class="field-error hidden" id="login-error"></div>
+    <button class="btn-primary" onclick="handleLogin()">Sign in</button>
+  </div>
+ 
+  <!-- ── Subject picker ── -->
+  <div class="card hidden" id="screen-subject">
+    <div class="card-title" id="subject-greeting"></div>
+    <div class="card-sub">What are we working on today?</div>
+    <div class="subject-grid" id="subject-grid"></div>
+  </div>
+ 
+  <!-- ── Topic picker ── -->
+  <div class="card card-wide hidden" id="screen-topic">
+    <button class="back-btn" onclick="handleBackToSubject()">← Back</button>
+    <div class="card-title" id="topic-title"></div>
+    <div class="card-sub" id="topic-sub"></div>
+    <div class="topic-section-label">Suggested topics</div>
+    <div class="topic-grid" id="topic-grid"></div>
+    <div class="topic-divider">
+      <div class="topic-divider-line"></div>
+      <div class="topic-divider-text">or type your own</div>
+      <div class="topic-divider-line"></div>
+    </div>
+    <div class="topic-input-row">
+      <input class="topic-free-input" id="topic-free-input" type="text" placeholder="Help me to learn about…" />
+      <button class="topic-go-btn" onclick="handleFreeTopic()">Go</button>
+    </div>
+  </div>
+ 
+  <!-- ── Chat ── -->
+  <div class="chat-shell hidden" id="screen-chat">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <span class="chat-header-name" id="chat-name"></span>
+        <span class="chat-header-sub" id="chat-sub"></span>
+      </div>
+      <div class="header-btns">
+        <button class="header-btn" onclick="handleChangeSubject()">Change subject</button>
+        <button class="header-btn" onclick="handleLogout()">Log out</button>
+      </div>
+    </div>
+    <div class="history-banner hidden" id="history-banner">
+      <div class="history-banner-text" id="history-banner-text"></div>
+      <div class="history-banner-btns">
+        <button class="history-keep-btn" onclick="keepHistory()">Continue where I left off</button>
+        <button class="history-clear-btn" onclick="clearHistory()">Start fresh</button>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">📖</div>
+        <div class="empty-title">Ready when you are</div>
+        <div class="empty-sub">Ask anything or paste your homework question</div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <textarea class="chat-textarea" id="chat-input" rows="1" placeholder="Type your question…"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+ 
+</div>
+ 
+<script>
+  // ── Config ───────────────────────────────────────────────────────────────────
+  const USERS = {
+    eden:   { password: "eden123",   name: "Eden",   birthYear: 2008 },
+    reuben: { password: "reuben123", name: "Reuben", birthYear: 2010 },
+    sid:    { password: "sid123",    name: "Sid",    birthYear: 2012 },
+    abel:   { password: "abel123",   name: "Abel",   birthYear: 2014 },
+  };
+ 
+  const SUBJECTS = ["Maths", "Science", "English", "History", "Geography", "Other"];
+ 
+  // Age-appropriate topic suggestions per subject
+  // Keys: age brackets covering the kids (10, 12, 14, 16)
+  const TOPIC_SUGGESTIONS = {
+    Maths: {
+      10: ["Addition & subtraction", "Times tables", "Fractions basics", "Shapes & area", "Telling the time", "Simple word problems"],
+      12: ["Fractions & decimals", "Percentages", "Angles & geometry", "Long division", "Negative numbers", "Ratio & proportion"],
+      14: ["Algebra basics", "Linear equations", "Pythagoras theorem", "Statistics & graphs", "Probability", "Area & volume"],
+      16: ["Quadratic equations", "Trigonometry", "Calculus intro", "Functions & graphs", "Sequences & series", "Coordinate geometry"],
+    },
+    Science: {
+      10: ["Plants & photosynthesis", "The solar system", "States of matter", "Food chains", "Magnets", "Human body basics"],
+      12: ["Cells & organisms", "Forces & motion", "The periodic table", "Ecosystems", "Light & sound", "Electricity"],
+      14: ["DNA & genetics", "Chemical reactions", "Newton's laws", "Atoms & elements", "Evolution", "Energy & power"],
+      16: ["Organic chemistry", "Waves & optics", "Genetics & inheritance", "Thermodynamics", "Acids & bases", "Radioactivity"],
+    },
+    English: {
+      10: ["Nouns & verbs", "Punctuation basics", "Writing a story", "Reading comprehension", "Spelling patterns", "Descriptive writing"],
+      12: ["Parts of speech", "Paragraph structure", "Persuasive writing", "Figurative language", "Book analysis", "Poetry basics"],
+      14: ["Essay writing", "Analysing texts", "Shakespeare intro", "Narrative techniques", "Argument & evidence", "Vocabulary building"],
+      16: ["Critical analysis", "Shakespeare plays", "Comparative essays", "Context & meaning", "Rhetoric & persuasion", "Unseen poetry"],
+    },
+    History: {
+      10: ["Ancient Egypt", "Ancient Rome", "Aboriginal history", "Explorers & discovery", "World War 2 basics", "Australian history"],
+      12: ["Federation of Australia", "World War 1", "The Great Depression", "Ancient civilisations", "Rights & democracy", "Colonisation"],
+      14: ["World War 2 in depth", "Cold War", "The Holocaust", "Russian Revolution", "Civil rights movement", "Vietnam War"],
+      16: ["Modern political history", "Causes of WW1", "Decolonisation", "The Cold War", "Genocide & human rights", "20th century revolutions"],
+    },
+    Geography: {
+      10: ["Continents & oceans", "Weather & climate", "Maps & directions", "Australian landscapes", "Natural disasters", "Countries of the world"],
+      12: ["Ecosystems & biomes", "Population & settlement", "Rivers & landforms", "Climate zones", "Land use & farming", "Sustainability"],
+      14: ["Climate change", "Urbanisation", "Plate tectonics", "Water & resource management", "Migration & refugees", "Economic geography"],
+      16: ["Globalisation", "Environmental issues", "Geopolitics", "Development & inequality", "Ocean systems", "Urban geography"],
+    },
+    Other: {
+      10: ["Something from school today", "A topic I find confusing", "Help with an assignment"],
+      12: ["Something from school today", "A topic I find confusing", "Help with an assignment"],
+      14: ["Something from school today", "A topic I find confusing", "Help with an assignment"],
+      16: ["Something from school today", "A topic I find confusing", "Help with an assignment"],
+    },
+  };
+ 
+  function getTopicsForUser(subject) {
+    const age = new Date().getFullYear() - currentUser.birthYear;
+    const brackets = [10, 12, 14, 16];
+    // Find nearest bracket
+    let bracket = brackets[0];
+    for (const b of brackets) { if (age >= b) bracket = b; }
+    return (TOPIC_SUGGESTIONS[subject] || {})[bracket] || [];
+  }
+ 
+  // ── State ────────────────────────────────────────────────────────────────────
+  let apiKey = localStorage.getItem("hw_api_key") || "";
+  let currentUser = (() => {
+    const saved = localStorage.getItem("hw_current_user");
+    return saved ? USERS[saved] : null;
+  })();
+  let currentSubject = null;
+  let currentTopic = null;
+  let messages = [];
+  let loading = false;
+  let pendingHistory = null; // saved messages waiting for keep/clear decision
+ 
+  // ── localStorage helpers ─────────────────────────────────────────────────────
+  function historyKey(user, subject, topic) {
+    return `hw_history__${user.name.toLowerCase()}__${subject}__${topic}`;
+  }
+ 
+  function saveHistory() {
+    if (!currentUser || !currentSubject || !currentTopic) return;
+    const key = historyKey(currentUser, currentSubject, currentTopic);
+    if (messages.length === 0) {
+      localStorage.removeItem(key);
+    } else {
+      localStorage.setItem(key, JSON.stringify(messages));
+    }
+  }
+ 
+  function loadHistory(user, subject, topic) {
+    const key = historyKey(user, subject, topic);
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }
+ 
+  // ── Screens ──────────────────────────────────────────────────────────────────
+  const SCREENS = ["screen-setup", "screen-login", "screen-subject", "screen-topic", "screen-chat"];
+ 
+  function showScreen(id) {
+    SCREENS.forEach(s => document.getElementById(s).classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+  }
+ 
+  function init() {
+    if (!apiKey) { showScreen("screen-setup"); return; }
+    if (currentUser) { showSubjectScreen(); return; }
+    showScreen("screen-login");
+  }
+ 
+  // ── API Key ──────────────────────────────────────────────────────────────────
+  function handleSetup() {
+    const key = document.getElementById("api-key-input").value.trim();
+    if (!key.startsWith("sk-ant-")) {
+      showError("setup-error", "That doesn't look like a valid Anthropic API key.");
+      return;
+    }
+    apiKey = key;
+    localStorage.setItem("hw_api_key", key);
+    showScreen("screen-login");
+  }
+ 
+  // ── Login ────────────────────────────────────────────────────────────────────
+  function handleLogin() {
+    const username = document.getElementById("login-username").value.trim().toLowerCase();
+    const password = document.getElementById("login-password").value;
+    const user = USERS[username];
+    if (!user || user.password !== password) {
+      showError("login-error", "Username or password incorrect.");
+      return;
+    }
+    currentUser = user;
+    localStorage.setItem("hw_current_user", username);
+    hideError("login-error");
+    document.getElementById("login-username").value = "";
+    document.getElementById("login-password").value = "";
+    showSubjectScreen();
+  }
+ 
+  // ── Subject ──────────────────────────────────────────────────────────────────
+  function showSubjectScreen() {
+    document.getElementById("subject-greeting").textContent = `Hi, ${currentUser.name}.`;
+    const grid = document.getElementById("subject-grid");
+    grid.innerHTML = "";
+    SUBJECTS.forEach(s => {
+      const btn = document.createElement("button");
+      btn.className = "subject-btn";
+      btn.textContent = s;
+      btn.onclick = () => showTopicScreen(s);
+      grid.appendChild(btn);
+    });
+    showScreen("screen-subject");
+  }
+ 
+  // ── Topic ────────────────────────────────────────────────────────────────────
+  function showTopicScreen(subject) {
+    currentSubject = subject;
+    document.getElementById("topic-title").textContent = subject;
+    document.getElementById("topic-sub").textContent = "Pick a topic or type your own.";
+    document.getElementById("topic-free-input").value = "";
+ 
+    const topics = getTopicsForUser(subject);
+    const grid = document.getElementById("topic-grid");
+    grid.innerHTML = "";
+    topics.forEach(t => {
+      const chip = document.createElement("button");
+      chip.className = "topic-chip";
+      chip.textContent = t;
+      chip.onclick = () => startChat(t);
+      grid.appendChild(chip);
+    });
+ 
+    showScreen("screen-topic");
+  }
+ 
+  function handleBackToSubject() {
+    currentSubject = null;
+    showSubjectScreen();
+  }
+ 
+  function handleFreeTopic() {
+    const val = document.getElementById("topic-free-input").value.trim();
+    if (!val) return;
+    startChat(val);
+  }
+ 
+  // ── Chat ─────────────────────────────────────────────────────────────────────
+  function startChat(topic) {
+    currentTopic = topic;
+    messages = [];
+    pendingHistory = null;
+ 
+    document.getElementById("chat-name").textContent = currentUser.name;
+    document.getElementById("chat-sub").textContent = `${currentSubject} · ${topic}`;
+ 
+    // Check for saved history
+    const saved = loadHistory(currentUser, currentSubject, topic);
+    if (saved && saved.length > 0) {
+      pendingHistory = saved;
+      const msgCount = saved.filter(m => m.role === "user").length;
+      document.getElementById("history-banner-text").textContent =
+        `You've worked on this before (${msgCount} question${msgCount !== 1 ? "s" : ""}).`;
+      document.getElementById("history-banner").classList.remove("hidden");
+    } else {
+      document.getElementById("history-banner").classList.add("hidden");
+    }
+ 
+    renderMessages();
+    showScreen("screen-chat");
+ 
+    const textarea = document.getElementById("chat-input");
+    textarea.value = "";
+    textarea.style.height = "auto";
+    textarea.disabled = false;
+    document.getElementById("send-btn").disabled = false;
+    textarea.focus();
+  }
+ 
+  function keepHistory() {
+    messages = pendingHistory || [];
+    pendingHistory = null;
+    document.getElementById("history-banner").classList.add("hidden");
+    renderMessages();
+  }
+ 
+  function clearHistory() {
+    messages = [];
+    pendingHistory = null;
+    document.getElementById("history-banner").classList.add("hidden");
+    saveHistory(); // removes the key
+    renderMessages();
+  }
+ 
+  function handleChangeSubject() {
+    saveHistory();
+    currentSubject = null;
+    currentTopic = null;
+    messages = [];
+    showSubjectScreen();
+  }
+ 
+  function handleLogout() {
+    saveHistory();
+    localStorage.removeItem("hw_current_user");
+    currentUser = null;
+    currentSubject = null;
+    currentTopic = null;
+    messages = [];
+    showScreen("screen-login");
+  }
+ 
+  // ── API ──────────────────────────────────────────────────────────────────────
+  function buildSystemPrompt() {
+    const age = new Date().getFullYear() - currentUser.birthYear;
+    return `You are a patient, encouraging tutor helping ${currentUser.name}, who is ${age} years old, with ${currentSubject} — specifically the topic: ${currentTopic}.
+ 
+Your method is strictly Socratic. Follow these rules without exception:
+ 
+1. NEVER give the answer directly unless the student has already worked it out themselves and just needs confirmation.
+2. Each response must contain: one short observation or explanation (maximum 2–3 sentences), then ONE question that nudges the student toward the answer themselves.
+3. If the student asks you to "just tell me the answer", gently decline and ask a simpler leading question instead.
+4. Match your language precisely to a ${age}-year-old. No jargon without explanation. No condescension.
+5. Be warm and encouraging, but concise. Never write more than 4 sentences total per response.
+6. If the student is clearly stuck after 3 attempts, give a small concrete hint — not the answer — and ask again.
+7. Celebrate when they get it right. One sentence of genuine praise, then ask if they want to try the next part.`;
+  }
+ 
+  async function sendMessage() {
+    const textarea = document.getElementById("chat-input");
+    const text = textarea.value.trim();
+    if (!text || loading) return;
+ 
+    messages.push({ role: "user", content: text });
+    textarea.value = "";
+    textarea.style.height = "auto";
+    setLoading(true);
+    renderMessages();
+ 
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 1000,
+          system: buildSystemPrompt(),
+          messages: messages.map(m => ({ role: m.role, content: m.content })),
+        }),
+      });
+ 
+      const data = await response.json();
+ 
+      if (data.error) {
+        messages.push({ role: "assistant", content: `Error: ${data.error.message}` });
+      } else {
+        const reply = data.content?.find(b => b.type === "text")?.text || "Sorry, I didn't catch that.";
+        messages.push({ role: "assistant", content: reply });
+      }
+    } catch (err) {
+      messages.push({ role: "assistant", content: "Something went wrong. Check your connection and try again." });
+    }
+ 
+    setLoading(false);
+    saveHistory();
+    renderMessages();
+  }
+ 
+  // ── Render ───────────────────────────────────────────────────────────────────
+  function renderMessages() {
+    const container = document.getElementById("chat-messages");
+    const emptyState = document.getElementById("empty-state");
+ 
+    Array.from(container.children).forEach(child => {
+      if (child.id !== "empty-state") child.remove();
+    });
+ 
+    if (messages.length === 0 && !loading) {
+      emptyState.classList.remove("hidden");
+    } else {
+      emptyState.classList.add("hidden");
+      messages.forEach(m => {
+        const div = document.createElement("div");
+        div.className = `msg ${m.role}`;
+        div.innerHTML = `
+          <div class="msg-sender">${m.role === "user" ? currentUser.name : "Tutor"}</div>
+          <div class="msg-bubble">${escapeHtml(m.content)}</div>
+        `;
+        container.appendChild(div);
+      });
+ 
+      if (loading) {
+        const thinking = document.createElement("div");
+        thinking.className = "msg assistant msg-thinking";
+        thinking.innerHTML = `
+          <div class="msg-sender">Tutor</div>
+          <div class="msg-bubble">Thinking…</div>
+        `;
+        container.appendChild(thinking);
+      }
+ 
+      container.scrollTop = container.scrollHeight;
+    }
+  }
+ 
+  function setLoading(state) {
+    loading = state;
+    document.getElementById("chat-input").disabled = state;
+    document.getElementById("send-btn").disabled = state;
+  }
+ 
+  // ── Utilities ────────────────────────────────────────────────────────────────
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.remove("hidden");
+  }
+ 
+  function hideError(id) {
+    document.getElementById(id).classList.add("hidden");
+  }
+ 
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+ 
+  // ── Boot ─────────────────────────────────────────────────────────────────────
+  document.addEventListener("DOMContentLoaded", () => {
+    const textarea = document.getElementById("chat-input");
+    textarea.addEventListener("input", () => {
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    });
+    textarea.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+    document.getElementById("login-password").addEventListener("keydown", e => {
+      if (e.key === "Enter") handleLogin();
+    });xf
+    document.getElementById("api-key-input").addEventListener("keydown", e => {
+      if (e.key === "Enter") handleSetup();
+    });
+    document.getElementById("topic-free-input").addEventListener("keydown", e => {
+      if (e.key === "Enter") handleFreeTopic();
+    });
+    init();
+  });
+</script>
+<div style="position:fixed;bottom:12px;right:16px;font-family:'DM Sans',sans-serif;font-size:11px;color:#ccc;letter-spacing:0.04em;">v1.3</div>
+ 
+</body>
+</html>
